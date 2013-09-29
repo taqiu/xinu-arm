@@ -39,6 +39,9 @@ C_FILES += xsh_nvram.c
 # Test commands
 C_FILES += xsh_test.c xsh_testsuite.c
 
+# run producer and consumer code
+C_FILES += xsh_ex4.c
+
 S_FILES =
 
 # Add the files to the compile source path
