@@ -10,6 +10,7 @@ int n = 0; /* external variables are shared by all processes */
  *------------------------------------------------------------------------
  */
 void run_ex4(void) {
+    n = 0;
     resume(create(consume, 1024, 20, "cons", 0));
     resume(create(produce, 1024, 20, "prod", 0));
 }
@@ -31,7 +32,7 @@ void produce(void) {
 
 void consume(void) {
     int i;
-    for( i=1 ; i<=50 ; i++ )
+    for( i=1 ; i<=60 ; i++ )
         printf("The value of n is %d \n", n);
 }
 
