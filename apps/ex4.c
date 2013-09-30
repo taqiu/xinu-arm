@@ -1,6 +1,11 @@
 /* ex4.c - main, produce, consume */
-//#include <stdio.h>
-//#include <stdlib.h>
+/* we don't have to include any libs, because this program 
+ * is just a part of shell. Shell run this program as a
+ * function
+ */
+/*#include <stdio.h>
+ *#include <stdlib.h>
+ */
 
 void produce(void), consume(void);
 int n = 0; /* external variables are shared by all processes */
@@ -26,13 +31,13 @@ void produce(void) {
 }
 
 /*------------------------------------------------------------------------
- * consume -- print n 2000 times and exit
+ * consume -- print n 60 times and exit
  *------------------------------------------------------------------------
  */
 
 void consume(void) {
     int i;
     for( i=1 ; i<=60 ; i++ )
-        printf("The value of n is %d \n", n);
+        printf("The value of n is %d\n", n);
 }
 
