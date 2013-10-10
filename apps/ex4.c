@@ -3,8 +3,9 @@
  * is just a part of shell. Shell run this program as a
  * function
  */
-#include <stdio.h>
-#include <stdlib.h>
+/* Add semaphore */
+// #include <stdio.h>
+// #include <stdlib.h>
  
 
 void produce(int consumed, int produced), consume(int consumed, int produced);
@@ -20,8 +21,8 @@ void run_ex4(void) {
     consumed = semcreate(0);
     produced = semcreate(1);
 
-    resume(create(consume, 1024, 20, "cons", consumed, produced));
-    resume(create(produce, 1024, 20, "prod", consumed, produced));
+    resume(create(consume, 1024, 20, "cons", 2, consumed, produced));
+    resume(create(produce, 1024, 20, "prod", 2, consumed, produced));
 }
 
 /*------------------------------------------------------------------------
