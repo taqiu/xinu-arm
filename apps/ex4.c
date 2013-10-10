@@ -3,7 +3,9 @@
  * is just a part of shell. Shell run this program as a
  * function
  */
-/* Add semaphore */
+/* Add semaphore 
+ * Group members: Tianhao Cao, Tanghong Qiu and Tzu-Feng Wu
+ * */
 // #include <stdio.h>
 // #include <stdlib.h>
  
@@ -31,7 +33,7 @@ void run_ex4(void) {
  */
 void produce(int consumed, int produced) {
     int i;
-    for( i=1 ; i<=2000 ; i++ ) {
+    for( i=1 ; i<= 2000 ; i++ ) {
         wait(consumed);
         n++;
         signal(produced);
@@ -45,9 +47,9 @@ void produce(int consumed, int produced) {
 
 void consume(int consumed, int produced) {
     int i;
-    for( i=1 ; i<=2000 ; i++ ) {
+    for( i=1 ; i<= 2000 ; i++ ) {
         wait(produced);
-        printf("n is %d\n", n);
+        printf("n is %d\r\n", n);
         signal(consumed);
     }
 }
