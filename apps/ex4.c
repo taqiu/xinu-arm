@@ -1,56 +1,33 @@
-/* ex4.c - main, produce, consume */
-/* we don't have to include any libs, because this program 
- * is just a part of shell. Shell run this program as a
- * function
- */
-/* Add semaphore 
- * Group members: Tianhao Cao, Tanghong Qiu and Tzu-Feng Wu
- * */
-// #include <stdio.h>
-// #include <stdlib.h>
- 
+#include <future.h>
 
-void produce(int consumed, int produced), consume(int consumed, int produced);
-int n = 0; /* external variables are shared by all processes */
+void future_cons(future);
+void future_prod(future);
 
-/*------------------------------------------------------------------------
- * main -- example of unsynchronized producer and consumer processes
- *------------------------------------------------------------------------
- */
 void run_ex4(void) {
-    n = 0;
-    int produced, consumed;
-    consumed = semcreate(0);
-    produced = semcreate(1);
+    future f1, f2, f3;
+    f1 = future_alloc(0);
+    f2 = future_alloc(0);
+    f3 = future_alloc(0);
 
-    resume(create(consume, 1024, 20, "cons", 2, consumed, produced));
-    resume(create(produce, 1024, 20, "prod", 2, consumed, produced));
+    resume( create(future_cons, 1024, 20, "fcons1", 1, f1) );
+    resume( create(future_prod, 1024, 20, "fprod1", 1, f1) );
+    resume( create(future_cons, 1024, 20, "fcons2", 1, f2) );
+    resume( create(future_prod, 1024, 20, "fprod2", 1, f2) );
+    resume( create(future_cons, 1024, 20, "fcons3", 1, f3) );
+    resume( create(future_prod, 1024, 20, "fprod3", 1, f3) );
 }
 
-/*------------------------------------------------------------------------
- * produce -- increment n 2000 times and exit
- *------------------------------------------------------------------------
- */
-void produce(int consumed, int produced) {
+void future_cons(future fut) {
+    int ret;
     int i;
-    for( i=1 ; i<= 2000 ; i++ ) {
-        wait(consumed);
-        n++;
-        signal(produced);
+    for (i = 0; i < 3; i++) {
+    	future_get(fut, &ret);
+    	printf("future %d value is %d\n\r", fut, ret);
     }
 }
 
-/*------------------------------------------------------------------------
- * consume -- print n 60 times and exit
- *------------------------------------------------------------------------
- */
-
-void consume(int consumed, int produced) {
+void future_prod(future fut) {
     int i;
-    for( i=1 ; i<= 2000 ; i++ ) {
-        wait(produced);
-        printf("n is %d\r\n", n);
-        signal(consumed);
-    }
+    for (i = 0; i < 3; i++)
+        future_set(fut, i);
 }
-
