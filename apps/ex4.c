@@ -4,7 +4,7 @@ void future_cons1(future);
 void future_cons2(future);
 void future_prod1(future);
 void future_prod2(future);
-void fun(future);
+void fun(int *);
 void fun_cont(future);
 
 void run_ex4(void) {
@@ -26,8 +26,10 @@ void run_ex4(void) {
     resume( create(future_prod2, 1024, 20, "fprod2", 1, f2) );
     
     // Test for asynch()
-    f3 = future_alloc(FT_NULL);    // FT_NULL will make the behavior same as the future implemeted with binary semaphore
+    f3 = future_alloc(FT_SHARED);
     asynch(&f3, fun);
+    future_get(f3, &ret);
+    printf("Check value: %d\n\r", ret);
 
     // Test for cont()
     f4 = future_alloc(FT_SHARED);
@@ -40,10 +42,9 @@ void fun_cont(future fut) {
     printf("future has been set\n\r");
 }
 
-void fun(future fut) {
-    int ret = 10;
-    future_set(&fut, &ret);
-    printf("asynch(future*, void *) will run and set the future to %d\n\r", ret);
+void fun(int *val) {
+    *val = 20;
+    printf("asynch(future*, void *) will run and set the future to %d\n\r", 20);
 }
 
 void future_cons1(future fut) {

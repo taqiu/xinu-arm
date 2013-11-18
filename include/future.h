@@ -45,7 +45,7 @@ future future_new();
 
 void future_ini() {
     int i;
-    tail = -1;
+    tail = 0;
     head = 0;
     for (i = 0; i < NFUT; i ++) {
         futent_tab[i].fstate = FUT_FREE;
@@ -99,8 +99,6 @@ future future_alloc(int future_flags) {
             return SYSERR;
         }
     } else {
-	// future without flag
-	//printf("Debug[alloc]\n\r");
         if ((futent_tab[fut].sem_prod = semcreate(0)) == SYSERR || (futent_tab[fut].sem_cons = semcreate(1)) == SYSERR) {
             restore(mask);
             return SYSERR;
@@ -138,13 +136,11 @@ syscall future_get(future fut, int *value) {
         }
     } else if (futptr->future_flag == FT_QUEUE) {
          wait(futptr->sem_prod);
-         if (tail >= head) {
+         if (tail != head) {
              *value = value_que[head];
-             head ++;
+             head = (head + 1) % VAL_QUE_LEN;
          } else wait(futptr->sem_prod);
     } else {
-        printf("Debug[get]\n\r");
-        // future without flag
         wait(futent_tab[fut].sem_prod);
         *value = futent_tab[fut].value;
         signal(futent_tab[fut].sem_cons);
@@ -178,11 +174,12 @@ syscall future_set(future *future, int *value) {
             futptr->value = *value;
         }
     } else if (futptr->future_flag == FT_QUEUE) {
-        tail ++;
-        value_que[tail] = *value;
+        if ((tail + 1) % VAL_QUE_LEN != head) {
+            value_que[tail] = *value;
+            tail = (tail + 1) % VAL_QUE_LEN;
+        } else return SYSERR;
         signal(futptr->sem_prod);
     } else {
-        //printf("Debug[set]\n\r");
         wait(futent_tab[fut].sem_cons);
         futent_tab[fut].value = *value;
         signal(futent_tab[fut].sem_prod);
@@ -220,12 +217,14 @@ syscall future_free(future fut) {
 
 syscall asynch(future *fut, void *fun) {
     irqmask mask;
+    int val;
     mask = disable();
     if (isbadfut(*fut)) {
         restore(mask);
         return SYSERR;
     }
-    resume( create(fun, 1024, 20, "future_asynch", 1, *fut));
+    resume( create(fun, 1024, 20, "future_asynch", 1, &val));
+    future_set(fut, &val);
     restore(mask);
     return OK;
 }
@@ -239,7 +238,8 @@ syscall cont(future *fut, void *fun) {
     }
     int ret;
     if (future_get(*fut, &ret) == OK)
-    resume( create(fun, 1024, 20, "future_cont", 1, *fut));
+        resume( create(fun, 1024, 20, "future_cont", 1, *fut));
+    else return SYSERR;
     restore(mask);
     return OK;
 }
